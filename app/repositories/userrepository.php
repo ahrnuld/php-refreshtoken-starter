@@ -19,6 +19,9 @@ class UserRepository extends Repository
             $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
             $user = $stmt->fetch();
 
+            if (!$user)
+                return false;
+
             // verify if the password matches the hash in the database
             $result = $this->verifyPassword($password, $user->password);
 
@@ -32,6 +35,21 @@ class UserRepository extends Repository
         } catch (PDOException $e) {
             echo $e;
         }
+    }
+
+    function updateRefreshToken($user)
+    {
+        $hashedToken = password_hash($user->refreshtoken, PASSWORD_DEFAULT);
+
+        $stmt = $this->connection->prepare("UPDATE user SET refreshtoken = :refreshtoken WHERE username = :username");
+        $stmt->bindParam(':username', $user->username);
+        $stmt->bindParam(':refreshtoken', $hashedToken);
+        $stmt->execute();
+    }
+
+    function checkRefreshToken($username, $refreshtoken)
+    {
+       // TODO: Check if the refresh token is valid. If so, return the user
     }
 
     // hash the password (currently uses bcrypt)

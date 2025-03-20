@@ -15,6 +15,29 @@ class UserController extends Controller
         $this->service = new UserService();
     }
 
+    private function generateTokens($user) {
+        // TODO: Generate and store refresh token
+
+        // generate jwt
+        $key = 'banaan';
+
+        $payload = [
+            'iss' => 'http://example.org',
+            'aud' => 'http://example.com',
+            'iat' => time(),
+            'nbf' => time(),
+            'exp' => time() + 10,
+            'sub' => $user->username,
+            'data' => [
+                'username' => $user->username,
+                'email' => $user->email,
+            ]
+        ];
+
+        $jwt = JWT::encode($payload, $key, 'HS256');
+        return $jwt;
+    }
+
     public function login()
     {
 
@@ -30,33 +53,16 @@ class UserController extends Controller
             return;
         }
 
-        // TODO: Generate and store refresh token
-
-        // generate jwt
-        $key = 'banaan';
-
-        $payload = [
-            'iss' => 'http://example.org',
-            'aud' => 'http://example.com',
-            'iat' => time(),
-            'nbf' => time(),
-            'exp' => time() + 10,
-            'sub' => $user->username,
-            'data' => [
-                'username' => $user->username, 
-                'email' => $user->email
-            ]
-        ];
-
-        $jwt = JWT::encode($payload, $key, 'HS256');
+        $jwt = $this->generateTokens($user);
 
         // return jwt
         $this->respond($jwt);
     }
 
     public function refresh()
-    {
-        // TODO: Check refresh token and return new JWT + refresh token if valid
+    {   
+        // TODO: Read the username and refresh token from the message body
+        // If the token is valid for the user, generate & return a new JWT
     }
 
 }
